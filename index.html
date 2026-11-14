@@ -111,7 +111,7 @@ tr.loser .pill{background:#ff0000!important;color:#fff!important;font:900 clamp(
 
 <div class="card">
   <h2>Supply that could be sold: history since 2021 and the next 24 months</h2>
-  <p class="note"><b>Left of "Today"</b>: weekly history from the governance canister (October 2021 is the dashboard's earliest record). Liquid ICP, stake in dissolved neurons not yet withdrawn, unclaimed maturity (recorded only from August 2023, so the earlier gap is missing data, not zero), and stake less than 6 months from unlocking. <b>Right of "Today"</b>: liquid, dissolved and maturity held at today's level, plus dissolving neurons as each countdown ends, computed from all 14,385 dissolving neurons. Dashed green line: worst case, where every locked neuron also starts dissolving today. <b>Black line</b>: ICP locked in neurons (staked and not yet dissolved); dashed after Today, assuming nobody new stakes. Numbered dots = tokenomics changes (see table below).</p>
+  <p class="note"><b>Left of "Today"</b>: weekly history from the governance canister (October 2021 is the dashboard's earliest record). Liquid ICP, stake in dissolved neurons not yet withdrawn, unclaimed maturity (recorded only from 15 Aug 2023; <b>before that it is an estimate</b>: the stock builds up from the first reward week in proportion to the rewards minted, ending at the first recorded value of 61.6M. It can only grow gradually, so the earlier gap was missing data, not zero), and stake less than 6 months from unlocking. <b>Right of "Today"</b>: liquid, dissolved and maturity held at today's level, plus dissolving neurons as each countdown ends, computed from all 14,385 dissolving neurons. Dashed green line: worst case, where every locked neuron also starts dissolving today. <b>Black line</b>: ICP locked in neurons (staked and not yet dissolved); dashed after Today, assuming nobody new stakes. Numbered dots = tokenomics changes (see table below).</p>
   <div class="chart" style="height:440px"><canvas id="c5"></canvas></div>
 </div>
 <div class="card">
@@ -353,7 +353,11 @@ p2.textContent=M2(new1y)+' ICP';p2n.textContent='adds dissolving ≤1y and locke
 p3.textContent=M2(new2y)+' ICP';p3n.textContent='all stake + all maturity (max delay is now 2 years)';
 p4.textContent=M2(P.liquid)+' ICP';p4n.textContent='supply − ICP in neurons · incl. exchanges & treasuries';
 // weekly history (thousand ICP): [day, supply, staked(incl. dissolved), dissolved, <6-month-to-unlock excl. dissolved]
-{const K=1e3, mAt=d=>d<M[0][0]?null:at(M,d);
+{const K=1e3;
+ // Before 15 Aug 2023 the dashboard has no maturity record. Rather than drawing zero (a fake cliff), estimate the stock:
+ // it builds up from the first reward week in proportion to cumulative rewards minted, and meets the first recorded value.
+ const cumRW=d=>{let t=0;for(const [x,v] of RW){if(x<=d)t+=v;}return t;}, CUM0=cumRW(M[0][0]);
+ const mAt=d=>d<M[0][0]?M[0][1]*cumRW(d)/CUM0:at(M,d);
  const X=[],LIQ=[],DIS=[],MAT=[],NEAR=[],DSV=[],WORST=[],LOCKH=[],LOCKF=[];
  for(const [d,s,k,x,l6] of HIST){const liq=(s-k)*K,dis=liq+(x||0)*K,m=mAt(d),mat=dis+(m||0),near=mat+(l6||0)*K;
   X.push(d);LIQ.push(liq);DIS.push(dis);MAT.push(mat);NEAR.push(near);DSV.push(near);WORST.push(null);LOCKH.push((k-(x||0))*K);LOCKF.push(d===NOW?(k-(x||0))*K:null);}
@@ -368,7 +372,7 @@ p4.textContent=M2(P.liquid)+' ICP';p4n.textContent='supply − ICP in neurons ·
  new Chart(c5,{type:'line',data:{datasets:[
   A('Liquid ICP',LIQ,DANGER[5],'origin'),
   A('+ Dissolved, not withdrawn',DIS,DANGER[0],'-1'),
-  A('+ Unclaimed maturity',MAT,DANGER[1],'-1'),
+  A('+ Unclaimed maturity (estimated before Aug 2023)',MAT,DANGER[1],'-1'),
   A('+ Stake < 6 months from unlock (history)',NEAR,DANGER[2],'-1'),
   A('+ Dissolving neurons unlocking (forecast)',DSV,DANGER[3],'-1'),
   A('Worst case: locked neurons dissolve too',WORST,DANGER[4],false,{borderDash:[6,4],borderWidth:2,backgroundColor:'transparent',order:-1}),
