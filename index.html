@@ -51,6 +51,18 @@ table.ev td:first-child{white-space:nowrap}
 .verdict{margin-top:14px;padding:14px 16px;border-radius:10px;border:1px solid var(--line);background:var(--bg);line-height:1.55}
 .status{font-size:12px;font-weight:600;vertical-align:middle;margin-left:8px;padding:2px 9px;border-radius:999px;background:var(--line)}.status.ok{color:#1f7a4d;background:#1f7a4d1f}.status.old{color:var(--mute)}
 .foot{color:var(--mute);font-size:12.5px}
+
+.alarm{background:#ff0000;color:#fff;border:6px solid #000;border-radius:0;padding:14px 18px;margin:0 0 4px;font:900 clamp(22px,5vw,40px)/1.1 Impact,"Arial Black",sans-serif;text-transform:uppercase;text-align:center;box-shadow:8px 8px 0 #000;transform:rotate(-1deg)}
+.alarm small{display:block;font:700 clamp(13px,2.6vw,17px)/1.3 Arial,sans-serif;text-transform:none;margin-top:8px}
+.bigarrow{color:#ff0000;font:900 clamp(110px,26vw,220px)/.8 Arial,sans-serif;text-shadow:5px 5px 0 #000;-webkit-text-stroke:3px #000;margin:6px 0 0 6px;animation:bob 0.8s ease-in-out infinite alternate;user-select:none}
+.bigarrow.row{display:flex;align-items:center;gap:6px;font-size:clamp(70px,16vw,140px);margin:2px 0 8px}
+.bigarrow.row span{font:900 clamp(16px,3.4vw,26px)/1.1 Impact,"Arial Black",sans-serif;color:#ff0000;text-shadow:2px 2px 0 #000;-webkit-text-stroke:0;text-transform:uppercase}
+@keyframes bob{to{transform:translateY(14px)}}
+.bigarrow.row{animation-name:bobx}@keyframes bobx{to{transform:translateX(14px)}}
+.hot{outline:8px solid #ff0000!important;outline-offset:3px;background:#fff1f1!important;color:#000!important;animation:flash 1s steps(2) infinite}
+.hot .l,.hot .n{color:#000!important;font-weight:700}.hot .v{color:#ff0000!important;font-size:38px!important;font-weight:900!important}
+@keyframes flash{50%{outline-color:#000}}
+@media (prefers-reduced-motion:reduce){.bigarrow,.hot{animation:none}}
 </style>
 </head>
 <body>
@@ -58,8 +70,10 @@ table.ev td:first-child{white-space:nowrap}
 <h1>ICP neuron maturity tracker <span id="status" class="status old">● Loading…</span></h1>
 <p class="sub">How much NNS reward maturity is sitting unconverted, how it got there, and where it's heading. Data snapshot: <span id="asof"></span> · source: NNS Governance canister metrics via the IC dashboard metrics API.</p>
 
+<div class="alarm" role="alert">⚠ Warning: <span id="al1">~97M</span> ICP of maturity can be turned into sellable ICP in 7 days<small>That is new supply on top of today's circulating ICP, and it isn't counted in the supply figure. Half of it belongs to dormant holders who could return at any time.</small></div>
+<div class="bigarrow" aria-hidden="true">⬇</div>
 <div class="kpis">
-  <div class="kpi"><div class="l">Unstaked maturity (unclaimed)</div><div class="v" id="k1"></div><div class="n" id="k1n"></div></div>
+  <div class="kpi hot"><div class="l">⚠ Unstaked maturity (unclaimed) ⚠</div><div class="v" id="k1"></div><div class="n" id="k1n"></div></div>
   <div class="kpi"><div class="l">Staked maturity</div><div class="v" id="k2"></div><div class="n" id="k2n"></div></div>
   <div class="kpi"><div class="l">Total maturity overhang</div><div class="v" id="k3"></div><div class="n" id="k3n"></div></div>
   <div class="kpi"><div class="l">Max-stake APY now</div><div class="v" id="k5"></div><div class="n" id="k5n"></div></div>
@@ -76,8 +90,9 @@ table.ev td:first-child{white-space:nowrap}
 <div class="card" id="pressure">
   <h2>Selling-pressure forecast: what could hit the market, and how soon</h2>
   <p class="note">Every ICP and ICP-equivalent grouped by the <b>earliest time its owner could sell it</b>. The colour is the danger level: red can be sold now, green is two years away. Maturity isn't counted in the ICP supply, so it's <i>extra</i> supply on top of what already circulates.</p>
+  <div class="bigarrow row" aria-hidden="true">➡<span>This is the number. Sellable in 2 weeks.</span></div>
   <div class="kpis" style="margin:6px 0 14px">
-    <div class="kpi" style="border-left:4px solid var(--d0)"><div class="l">New supply sellable within 2 weeks</div><div class="v" id="p1"></div><div class="n" id="p1n"></div></div>
+    <div class="kpi hot" style="border-left:4px solid var(--d0)"><div class="l">New supply sellable within 2 weeks</div><div class="v" id="p1"></div><div class="n" id="p1n"></div></div>
     <div class="kpi" style="border-left:4px solid var(--d3)"><div class="l">… within 1 year (worst case)</div><div class="v" id="p2"></div><div class="n" id="p2n"></div></div>
     <div class="kpi" style="border-left:4px solid var(--d4)"><div class="l">… within 2 years (everything)</div><div class="v" id="p3"></div><div class="n" id="p3n"></div></div>
     <div class="kpi" style="border-left:4px solid var(--d5)"><div class="l">Already liquid ICP</div><div class="v" id="p4"></div><div class="n" id="p4n"></div></div>
@@ -135,6 +150,34 @@ table.ev td:first-child{white-space:nowrap}
   <div id="riskrows"></div>
   <div class="verdict" id="verdict"></div>
 </div>
+<div class="card" id="history">
+  <h2>Does history repeat? DFINITY's record with token holders</h2>
+  <p class="note">Written 14 Nov 2026 from the public documents linked at the end. It keeps what is documented apart from what is interpretation, and it doesn't claim to know anyone's intentions. It isn't financial advice.</p>
+
+  <h3 style="margin:14px 0 6px;font-size:16px">What the record documents</h3>
+  <ul style="padding-left:20px;margin:6px 0">
+    <li><b>The terms people staked under were changed by votes DFINITY proposed.</b> The Mission 70 white paper (Jan 2026) cuts the maximum dissolve delay from 8 to 2 years for every neuron and scales voting rewards down by about 36%. Its only stated protection for people who locked for 8 years is a 10% reward boost that ends in 2030. The paper's own reason: long lock-ups need high rewards, which "contributes significantly to overall inflation" (section 4.1.2).</li>
+    <li><b>Passive holders mostly follow DFINITY by default.</b> A review published by DFINITY in Feb 2023 reported that over 99% of voting power followed DFINITY or ICA neurons on non-governance topics, and that the two held 22.7% of voting power, down from about 39.5% just after genesis. An independent analyst counted DFINITY at 49.2% of the votes cast on a typical proposal in early 2022, and judged that a few parties could pass any proposal (his opinion).</li>
+    <li><b>The Neurons' Fund drew design objections.</b> Community members argued it exposed participants to front-running and forced selling. DFINITY's engineer agreed with some points ("Details are not fully designed yet") and disagreed with others, and DFINITY later voted to reject a proposal to remove the Fund from the SNS launchpad, saying participants can opt out.</li>
+  </ul>
+
+  <h3 style="margin:14px 0 6px;font-size:16px">The other reading</h3>
+  <p>The Mission 70 cap applies to every neuron, and cutting new issuance helps holders who don't stake. DFINITY's voting share has fallen over time, and its proposals don't always pass: the dissolve-delay-only proposal was rejected, a community counter-proposal to the Mission 70 motion was published, and the motion itself passed narrowly (see the table above). The documents show rule changes after people committed. They don't show that harming retail was the aim, and the stated aim is a 70% cut in inflation.</p>
+
+  <h3 style="margin:14px 0 6px;font-size:16px">What would show history repeating, and what wouldn't</h3>
+  <ul style="padding-left:20px;margin:6px 0">
+    <li><b>New terms for existing neurons.</b> A proposal that changes lock length, the reward formula or conversion rules for neurons that already exist. Mission 70's 10% boost is the benchmark for what "compensation" looked like last time.</li>
+    <li><b>The 2030 boost.</b> Whether the 8-year-gang bonus is kept to its end date, cut early or extended.</li>
+    <li><b>Rules on leaving.</b> The paper suggests a dissolution queue, similar to Ethereum's validator queue, to smooth the one-time migration. A queue that delays when locked stake can exit would matter most when the 2-year cliff in the charts above arrives. Read its design before it is voted.</li>
+    <li><b>Who decides.</b> The DFINITY and ICA voting share, how much power follows them by default, and the margins and turnout on each vote (Mission 70 passed with most voting power abstaining).</li>
+    <li><b>Disclosure.</b> The paper says nothing about the Foundation's ICP holdings or treasury. That is a gap, not evidence of anything. Published holdings and sales would remove the uncertainty.</li>
+  </ul>
+
+  <p style="margin-top:10px"><b>Reading.</b> The documented pattern is that the rules retail staked under have changed more than once, each time through a vote DFINITY proposed, and the data above shows what that cost 8-year lockers and passive holders. The record doesn't settle whether the next change will repeat it. The five signs above are observable, so check them against each new proposal rather than relying on a forecast from this page.</p>
+
+  <p class="note" style="margin-top:10px">Sources: <a href="https://internetcomputer.org/whitepapers/mission70.pdf" target="_blank" rel="noopener noreferrer">Mission 70 white paper</a> · <a href="https://forum.dfinity.org/t/mission-70-is-now-here/62587" target="_blank" rel="noopener noreferrer">Mission 70 announcement thread, 13 Jan 2026</a> · <a href="https://medium.com/dfinity/nns-and-decentralization-5f4963e83df7" target="_blank" rel="noopener noreferrer">NNS and Decentralization, Feb 2023</a> · <a href="https://kylelangham.substack.com/p/how-decentralized-is-the-nns" target="_blank" rel="noopener noreferrer">How decentralized is the NNS, Apr 2022</a> · <a href="https://forum.dfinity.org/t/dfinity-foundation-voting-power/11801" target="_blank" rel="noopener noreferrer">DFINITY Foundation voting power, 2022</a> · <a href="https://forum.dfinity.org/t/neuron-fund-design-flaw-proposal/20936" target="_blank" rel="noopener noreferrer">Neurons' Fund design thread</a> · <a href="https://forum.dfinity.org/t/dfinity-votes-to-reject-proposal-135318-to-remove-the-neurons-fund-nf-from-the-launchpad/41383" target="_blank" rel="noopener noreferrer">DFINITY on proposal 135318</a> · <a href="https://forum.dfinity.org/t/140888-counter-proposal/65542" target="_blank" rel="noopener noreferrer">Counter-proposal thread</a> (listed, not read in full).</p>
+</div>
+
 <div class="card">
   <h2>Who holds the maturity (current snapshot)</h2>
   <p class="note">Split by the neuron's voting-power status. These three groups don't overlap, so they add up to the total. Only today's value is published; the API keeps no history for these groups.</p>
@@ -250,7 +293,7 @@ const tip={callbacks:{title:it=>fd(it[0].parsed.x),label:it=>`${it.dataset.label
 // ---- KPIs ----
 const r30=RW.slice(-4).reduce((s,x)=>s+x[1],0)/28;
 document.getElementById('asof').textContent=(LIVE?'live, '+fd(NOW):fd(NOW)+' (saved snapshot)');
-k1.textContent=M2(m0)+' ICP';k1n.textContent=(m0/SUPPLY*100).toFixed(1)+'% of total supply ('+M2(SUPPLY)+')';
+k1.textContent=M2(m0)+' ICP';var al1=document.getElementById('al1');if(al1)al1.textContent=M2(m0);k1n.textContent=(m0/SUPPLY*100).toFixed(1)+'% of total supply ('+M2(SUPPLY)+')';
 k2.textContent=M2(s0)+' ICP';k2n.textContent=(s0/SUPPLY*100).toFixed(1)+'% of supply · locked with stake';
 k3.textContent=M2(m0+s0)+' ICP';k3n.textContent=(((m0+s0)/SUPPLY)*100).toFixed(1)+'% of supply';
 k4.textContent=K(r30*30)+' ICP';k4n.textContent='≈'+Math.round(r30).toLocaleString()+' ICP/day · '+(r30*365/SUPPLY*100).toFixed(2)+'% of supply annualised';
