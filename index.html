@@ -63,6 +63,13 @@ table.ev td:first-child{white-space:nowrap}
 .hot .l,.hot .n{color:#000!important;font-weight:700}.hot .v{color:#ff0000!important;font-size:38px!important;font-weight:900!important}
 @keyframes flash{50%{outline-color:#000}}
 @media (prefers-reduced-motion:reduce){.bigarrow,.hot{animation:none}}
+
+.alarm.lose{font-size:clamp(20px,4.4vw,34px);transform:rotate(1deg)}
+tr.loser td{background:#fff1f1!important;color:#000!important;font-weight:700;border-top:5px solid #ff0000;border-bottom:5px solid #ff0000}
+tr.loser td:first-child{border-left:5px solid #ff0000}tr.loser td:last-child{border-right:5px solid #ff0000}
+tr.loser .pill{background:#ff0000!important;color:#fff!important;font:900 clamp(18px,3.6vw,28px)/1 Impact,"Arial Black",sans-serif;text-transform:uppercase;padding:8px 12px;border:4px solid #000;border-radius:0;display:inline-block}
+.arrowcell{display:block;color:#ff0000;font:900 clamp(60px,12vw,100px)/.8 Arial,sans-serif;text-shadow:3px 3px 0 #000;-webkit-text-stroke:2px #000;animation:bobx .8s ease-in-out infinite alternate}
+@media (prefers-reduced-motion:reduce){.arrowcell{animation:none}}
 </style>
 </head>
 <body>
@@ -141,6 +148,8 @@ table.ev td:first-child{white-space:nowrap}
   <p class="note">Analysis written 14 Nov 2026; figures quoted in the text are as of that date (charts above update live). The numbered markers on the charts above and below refer to this table. Dates marked "observed" are where the change shows up in the on-chain data. Green = gained, red = lost.</p>
   <div style="overflow-x:auto"><table class="ev"><thead><tr><th>#</th><th>When</th><th>Change</th><th>Winners</th><th>Losers</th></tr></thead><tbody id="evrows"></tbody></table></div>
   <h3 style="margin:18px 0 6px;font-size:16px">Scorecard by holder group</h3>
+  <div class="alarm lose" role="alert">Retail lost: 8-year-gang stakers and passive / dormant holders<small>Rules they staked under were changed by votes. Their rows are marked with the red arrows below.</small></div>
+  <div class="bigarrow" aria-hidden="true">⬇</div>
   <div style="overflow-x:auto"><table class="ev"><thead><tr><th>Group</th><th>Verdict</th><th>Why</th></tr></thead><tbody id="scorerows"></tbody></table></div>
 </div>
 
@@ -414,7 +423,7 @@ const SCORE=[
  ['Non-stakers and liquid holders','Winner (recently)','#1f7a4d','Diluted by ~19% since genesis (469M → 558M supply) by staker rewards, but Mission 70 roughly halves new issuance from here.'],
 ];
 {const tb=document.getElementById('scorerows');for(const [g,v,col,why] of SCORE){const tr=document.createElement('tr');
- const a=document.createElement('td');a.textContent=g;a.style.fontWeight='600';const b=document.createElement('td');const p=document.createElement('span');p.className='pill';p.textContent=v;p.style.background=col+'22';p.style.color=col;b.appendChild(p);
+ const a=document.createElement('td');a.textContent=g;a.style.fontWeight='600';const b=document.createElement('td');const p=document.createElement('span');p.className='pill';p.textContent=v;p.style.background=col+'22';p.style.color=col;if(v==='Loser'){tr.className='loser';const ar=document.createElement('span');ar.className='arrowcell';ar.textContent='\u27A1';ar.setAttribute('aria-hidden','true');b.appendChild(ar);}b.appendChild(p);
  const c=document.createElement('td');c.textContent=why;tr.append(a,b,c);tb.appendChild(tr);}}
 const RISKS=[
  ['High','#b3261e','Rule-change risk','The NNS can, and does, change the terms of existing commitments retroactively: 8-year locks were cut to 2 years, rewards ~40% lower, conversion modulation added, and inactive stakers stripped of rewards. Anything you assume about yield or lock-ups can be voted away.'],
